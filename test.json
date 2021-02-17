@@ -1,0 +1,46 @@
+{
+  "student": [
+    {
+      "id": "login+role",
+      "name": "name",
+      "surname": "surname",
+      "login": "login",
+      "role": "student"
+    },
+    {
+      "id": "login+role",
+      "name": "name",
+      "surname": "surname",
+      "login": "login",
+      "role": "student"
+    },
+    {
+      "id": "login+role2",
+      "name": "name2",
+      "surname": "surname2",
+      "login": "login2",
+      "role": "student"
+    }
+  ],
+  "courses": [
+    {
+      "name": "python",
+      "teacher": "sh_a",
+      "total": 20
+    },
+    {
+      "name": "c#",
+      "teacher": "a_kh",
+      "total": 20
+    },
+    {
+      "name": "OS",
+      "teacher": "z_b",
+      "total": 20
+    },
+    {
+      "updated": "now",
+      "test": true
+    }
+  ]
+}

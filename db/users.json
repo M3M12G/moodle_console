@@ -1,1 +1,27 @@
-[{"name": "Magauiya", "surname": "Mazhit", "login": "mmazhit", "password": "123@abc", "role": "student"}, {"name": "Magauiya", "surname": "Mazhit", "login": "admin", "password": "root123@abc", "role": "admin"}, {"login": "ttest", "password": "test123", "name": "Test", "surname": "TTest", "role": "student"}]
+{
+  "admin": [
+    {
+      "login": "root@admin",
+      "password": "root@123asd"
+    }
+  ],
+  "students": [],
+  "teachers": [
+    {
+      "email": "mmg@maga",
+      "first_name": "Magauiya",
+      "surname": "Mazhit",
+      "role": "teacher",
+      "leading_courses": [],
+      "rating": []
+    },
+    {
+      "email": "teach@com",
+      "first_name": "Teacher",
+      "surname": "Sensei",
+      "role": "teacher",
+      "leading_courses": [],
+      "rating": []
+    }
+  ]
+}

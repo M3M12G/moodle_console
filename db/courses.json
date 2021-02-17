@@ -1,0 +1,24 @@
+{
+  "courses": [
+    {
+      "course_name": "Python",
+      "teacher": "sh_a",
+      "total_place": 20,
+      "students": []
+    },
+    {
+      "course_name": "C#",
+      "teacher": "as_kh",
+      "total_place": 20,
+      "students": [
+        "maga@mail"
+      ]
+    },
+    {
+      "course_name": "Test",
+      "teacher": "prev_teacher",
+      "total_place": 20,
+      "students": []
+    }
+  ]
+}
