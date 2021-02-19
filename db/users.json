@@ -5,16 +5,20 @@
       "password": "root@123asd"
     }
   ],
-  "students": [],
-  "teachers": [
+  "students": [
     {
-      "email": "mmg@maga",
+      "email": "maga@mail",
       "first_name": "Magauiya",
       "surname": "Mazhit",
-      "role": "teacher",
-      "leading_courses": [],
-      "rating": []
-    },
+      "role": "student",
+      "enrolled_courses": [],
+      "marks": [],
+      "rating": [
+        5
+      ]
+    }
+  ],
+  "teachers": [
     {
       "email": "teach@com",
       "first_name": "Teacher",

@@ -2,13 +2,13 @@
   "courses": [
     {
       "course_name": "Python",
-      "teacher": "sh_a",
+      "teacher": "root@admin",
       "total_place": 20,
       "students": []
     },
     {
       "course_name": "C#",
-      "teacher": "as_kh",
+      "teacher": "root@admin",
       "total_place": 20,
       "students": [
         "maga@mail"
@@ -16,9 +16,11 @@
     },
     {
       "course_name": "Test",
-      "teacher": "prev_teacher",
+      "teacher": "admin",
       "total_place": 20,
-      "students": []
+      "students": [
+        "maga@mail"
+      ]
     }
   ]
 }

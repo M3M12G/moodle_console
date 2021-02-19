@@ -16,6 +16,10 @@ class Course(object):
 
     # representing method of Course class
     def course_info(self):
+        """
+            would be invoked by object of Course
+            prints details of Course
+        """
         print("Course name: {}".format(self._course_name))
         print("Lead teacher: {}".format(self._teacher))
 
@@ -24,9 +28,18 @@ class Course(object):
         else:
             print("Enrolled: {}/{}".format(len(self._students), self._total_place))
 
+    def set_new_teacher(self, teacher_email):
+        self._teacher = teacher_email
+
+    def extend_limited_places(self):
+        self._total_place + 1
+
     # adding new course to json file
     @staticmethod
     def add():
+        """
+            writes to json file Course object structure
+        """
         prev_courses = Course._file.read_db()
         course_name = input("Please, type course name >")
         # check course for uniqueness/ instantiating blank class with one attribute
@@ -37,7 +50,7 @@ class Course(object):
 
         prev_courses["courses"].append({
             "course_name": course_name,
-            "teacher": input("Please, type teacher's id >"),
+            "teacher": input("Please, type teacher's email >"),
             "total_place": int(input("Please, type total enrolled number >")),
             "students": []
         })
@@ -45,9 +58,11 @@ class Course(object):
         print("New course - {} is added".format(course_name))
         return
 
-    # deleting course
     @staticmethod
     def delete():
+        """
+            deletes from json file provided course name with its sub-records
+        """
         course_name = input("Please, type course name >")
         c = Course(course_name)
         if c.is_course_exists():
@@ -62,6 +77,9 @@ class Course(object):
             print("Failed. {} course does not exist".format(course_name))
 
     def is_course_exists(self):
+        """
+            checks whether invoking Course object is exists in json file
+        """
         db = Course._file.read_db()
         courses = db["courses"]
         for crs in courses:
@@ -70,9 +88,9 @@ class Course(object):
                 break
         return False
 
-    # returns all courses mapped to Course class
     @staticmethod
     def get_courses():
+        """returns all courses mapped to Course class"""
         courses = []
         courses_recs = Course._file.read_db()
         for course in courses_recs["courses"]:
@@ -81,6 +99,9 @@ class Course(object):
 
     @staticmethod
     def print_all_crs():
+        """
+            prints all courses
+        """
         all = Course.get_courses()
         print("All courses")
         for c in all:
@@ -89,6 +110,10 @@ class Course(object):
 
     @staticmethod
     def print_all_free_courses():
+        """
+            prints all courses, where the number of students does
+            not exceed the number of limited places of course
+        """
         all = Course.get_courses()
         print("All free courses")
         for c in all:
@@ -97,8 +122,11 @@ class Course(object):
             c.course_info()
             print("----------")
 
-    # returns single Course object
     def get_course(self):
+        """
+            returns records from json file mapped to
+            Course class object
+        """
         db = Course._file.read_db()
         courses = db["courses"]
         for crs in courses:
@@ -106,9 +134,18 @@ class Course(object):
                 return Course(**crs)
                 break
 
-    # just provide course_name and new teacher id/or if it is not needed just type prev teacher id
-    # and provide extension number of limited places into blank Course instance
+    def get_list_of_students(self):
+        """
+            returns the list of students
+        """
+        return self._students
+
     def update_course(self):
+        """
+            just provide course_name and new teacher id/or if it is not needed just type
+            prev teacher email and provide extension number of limited places into blank
+            Course instance
+        """
         # ensure that updating course is exists
         if self.is_course_exists():
             db = Course._file.read_db()
@@ -130,8 +167,11 @@ class Course(object):
         print("The course - {} is updated".format(self._course_name))
         return self.get_course().course_info()
 
-    # used by teachers or admins to attach student to course
     def enroll_student(self, student_email):
+        """
+            would be invoked by Teacher/Admin/Student, where Course would
+            record students email to students list of course
+        """
         # check if course exists
         if not self.is_course_exists():
             print("The given course not found")
@@ -151,6 +191,10 @@ class Course(object):
 
     # used by teachers or admins to detach student from course
     def unenroll_student(self, student_email):
+        """
+            would be invoked by Teacher/Admin/Student, where Course would
+            delete email record of student from students list of course
+        """
         # check if course exists
         if not self.is_course_exists():
             print("The given course not found")
@@ -162,7 +206,6 @@ class Course(object):
                 if db["courses"][crs_i]["course_name"] == self._course_name:
                     if student_email in db["courses"][crs_i]["students"]:
                         db["courses"][crs_i]["students"].remove(student_email)
-                        print(db["courses"][crs_i]["students"])
                         break
             self._file.write_db(db)
             print("The student with email : {} is unenrolled from {} course".format(student_email, self._course_name))
@@ -170,6 +213,9 @@ class Course(object):
             print("No matching student found by email : {}".format(student_email))
 
     def is_student_enrolled(self, student_email):
+        """
+            checks whether student is in students list of course
+        """
         if not self.is_course_exists():
             print("Course with name - {} does not exist".format(self._course_name))
             return
@@ -180,24 +226,43 @@ class Course(object):
                 break
         return False
 
+    def is_teacher_leads(self, teacher_email):
+        """
+            checks whether teacher leads course or not
+        """
+        if not self.is_course_exists():
+            print("Course with name - {} does not exist".format(self._course_name))
+            return
+        course = self.get_course()
+        if teacher_email == course._teacher:
+            return True
+        return False
 
-# c = Course("Test", "prev_teacher",20)
-# c.update_course()
+
+# Testing code
+# to test, just unwrap code from comments
 
 # Course.add()
 
-#c = Course("Thwt")
-# all = Course.get_courses()
+'''
+crs = Course("Test")
+c = crs.get_course()
+c.set_new_teacher("admin")
+c.extend_limited_places()
+c.update_course()
+'''
+
+# c = Course("Python")
+# print((c.is_teacher_leads("sh_a"))
 
 # Course.print_all_free_courses()
 
 # crs = Course("Python")
-# print(crs.get_course().course_info())
 
 # Course.delete()
 
 # Course.print_all_crs()
 
 # c = Course("Python")
-#c.enroll_student("st_ebwt")
+# c.enroll_student("st_ebwt")
 # c.unenroll_student("st_ebwt")
