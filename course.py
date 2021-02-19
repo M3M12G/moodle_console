@@ -28,11 +28,20 @@ class Course(object):
         else:
             print("Enrolled: {}/{}".format(len(self._students), self._total_place))
 
+    def get_teacher(self):
+        return self._teacher
+
     def set_new_teacher(self, teacher_email):
         self._teacher = teacher_email
 
     def extend_limited_places(self):
         self._total_place + 1
+
+    def get_total_place(self):
+        return self._total_place
+
+    def get_students_list(self):
+        return self._students
 
     # adding new course to json file
     @staticmethod
@@ -63,6 +72,7 @@ class Course(object):
         """
             deletes from json file provided course name with its sub-records
         """
+        Course.print_all_crs()
         course_name = input("Please, type course name >")
         c = Course(course_name)
         if c.is_course_exists():

@@ -15,12 +15,10 @@
       ]
     },
     {
-      "course_name": "Test",
-      "teacher": "admin",
-      "total_place": 20,
-      "students": [
-        "maga@mail"
-      ]
+      "course_name": "sleeping",
+      "teacher": "maga@mail",
+      "total_place": 1,
+      "students": []
     }
   ]
 }

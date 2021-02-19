@@ -1,17 +1,13 @@
 {
-  "admin": [
-    {
-      "login": "root@admin",
-      "password": "root@123asd"
-    }
-  ],
   "students": [
     {
       "email": "maga@mail",
       "first_name": "Magauiya",
       "surname": "Mazhit",
       "role": "student",
-      "enrolled_courses": [],
+      "enrolled_courses": [
+        "C#"
+      ],
       "marks": [],
       "rating": [
         5
@@ -20,11 +16,13 @@
   ],
   "teachers": [
     {
-      "email": "teach@com",
-      "first_name": "Teacher",
-      "surname": "Sensei",
+      "email": "maga@mail",
+      "first_name": "Magauiya",
+      "surname": "Mazhit",
       "role": "teacher",
-      "leading_courses": [],
+      "leading_courses": [
+        "sleeping"
+      ],
       "rating": []
     }
   ]

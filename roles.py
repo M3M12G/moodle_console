@@ -1,3 +1,5 @@
+import time
+
 import db
 import course
 
@@ -129,6 +131,9 @@ class Student(UserBase):
     @staticmethod
     def print_all_students():
         all = Student.get_students()
+        if all is None:
+            print("No students found.")
+            return
         for st in all:
             print(st.whois())
             print("--------------")
@@ -339,7 +344,8 @@ class Student(UserBase):
         """
             prints list of teachers by invoking through Teacher class
         """
-        Teacher.print_all_teachers()
+        t = Teacher("dumb instance")
+        t.print_all_teachers()
 
 
 # --------------------------------------------------------------------- #
@@ -480,6 +486,9 @@ class Teacher(UserBase):
     @staticmethod
     def print_all_teachers():
         all_t = Teacher.get_all_teachers()
+        if all_t is None:
+            print("No teachers found.")
+            return
         for t in all_t:
             print(t.whois())
             print("--------------")
@@ -658,7 +667,7 @@ class Teacher(UserBase):
         s.rate_student()
 
 
-# Test methods to check
+# Test methods to check Teacher class
 '''
 COPY AND PASTE test code outside the comments block
 Make testing classes, predvaritelno zakommentiv this portion of test code
@@ -677,3 +686,302 @@ t.get_students_of_course()
 # t.rate_student_as_teacher()
 Teacher.print_all_teachers()
 '''
+
+# Test methods to check Students class
+'''
+# Student.add_student()
+s = Student("maga@st")
+s.print_teachers()
+s.print_my_courses()
+s.enroll_me_to_course()
+s.get_my_marks()
+s.get_my_marks_for()
+s.rate_teacher_as_student()
+s.unenroll_me_from_course()
+s.delete_student()
+'''
+
+
+# --------------------------------------------------------------------- #
+
+# ROLE - ADMIN. IT'S CLASS AND METHODS
+
+class Admin(object):
+    _login = None
+    _file = db.DB("conf.json")
+
+    """
+        class that defines Admin role
+        does not inherit any class except basic object
+        does not need specific representation fields (first name, surname, etc)
+    """
+    pass
+
+    def __init__(self):
+        self._authorized = False
+
+    def get_login(self):
+        return self._login
+
+    def authenticate(self):
+        """
+            login method for admin
+        """
+        print("Warning!\nYou are working as Admin")
+        login = input("Type admin login to continue... >")
+        data = self._file.read_db()
+        if data["login"] == login:
+            passwrd = input("Ok. type password >")
+            if data["password"] == passwrd:
+                self._authorized = True
+                self._login = data["login"]
+                print("Identity confirmed ...")
+                return self.main_menu()
+            else:
+                print("Wrong password")
+        else:
+            print("Incorrect data. try again...")
+
+    def logout(self):
+        """make authorized flaf false"""
+        self._authorized = False
+
+    def is_authenticated(self):
+        """
+            used for every action of admin, to verify
+        """
+        if not self._authorized:
+            print("Unauthorized action...")
+            return False
+        return True
+
+    def attach_teachers(self):
+        """
+            used for attaching teacher to existing course as lead
+        """
+        print("The list of teachers")
+        Teacher.print_all_teachers()
+        teacher_email = input("Please, type teacher email >")
+        t = Teacher(teacher_email)
+        if not t.is_teacher_exists():
+            print("No teacher found with email - {}".format(teacher_email))
+            time.sleep(0.5)
+            return self.course_crud_menu()
+        print("The list of all courses")
+        course.Course.print_all_crs()
+        course_name = input("Type the course name, to which "
+                            "you want to attach new teacher with email - {} >"
+                            .format(teacher_email))
+        c = course.Course(course_name)
+        if not c.is_course_exists():
+            print("Course - {} does not exist. Please type another.".format(course_name))
+            time.sleep(0.5)
+            return self.course_crud_menu()
+        # fix changes on courses json file
+        course_to_upd = c.get_course()
+        course_to_upd.set_new_teacher(teacher_email)
+        course_to_upd.extend_limited_places()
+        course_to_upd.update_course()
+
+        # fix changes on users[teachers] json file
+        users = Teacher.get_db().read_db()
+        for t_i in range(len(users["teachers"])):
+            if users["teachers"][t_i]["email"] == t.get_email():
+                if course_name in users["teachers"][t_i]["leading_courses"]:
+                    print("Teacher - {} is already leads the course - {}".format(teacher_email, course_name))
+                    time.sleep(0.5)
+                    return self.course_crud_menu()
+                users["teachers"][t_i]["leading_courses"].append(course_name)
+                break
+        Teacher.get_db().write_db(users)
+        print("Teacher's leading courses updated")
+        time.sleep(0.7)
+        return self.course_crud_menu()
+
+    def attach_students(self):
+        """
+            used for attaching student to existing, free course
+        """
+        print("The list of students")
+        Student.print_all_students()
+        student_email = input("Please, type student email >")
+        s = Student(student_email)
+        if not s.is_student_exist():
+            print("No student found with email - {}".format(student_email))
+            time.sleep(0.5)
+            return self.course_crud_menu()
+
+        print("The list of all free courses")
+        course.Course.print_all_free_courses()
+        course_name = input("Type the course name, to which "
+                            "you want to attach student with email - {} >"
+                            .format(student_email))
+        c = course.Course(course_name)
+        if not c.is_course_exists():
+            print("Course - {} does not exist. Please type another.".format(course_name))
+            time.sleep(1)
+            return self.course_crud_menu()
+        # check student's enrollment from two sides
+        if s.is_enrolled(course_name):
+            print("Student - {} is already enrolled to course - {}".format(student_email, course_name))
+            time.sleep(1)
+            return self.course_crud_menu()
+        # write to courses json file
+        c.enroll_student(student_email)
+        # write to users json file
+        users = s.get_db().read_db()
+        for st_i in range(len(users["students"])):
+            if users["students"][st_i]["email"] == student_email:
+                if course_name in users["students"][st_i]["enrolled_courses"]:
+                    print("Student - {} have already enrolled to course {}".format(student_email, course_name))
+                    return
+                users["students"][st_i]["enrolled_courses"].append(course_name)
+                break
+        s.get_db().write_db(users)
+        print("Student - {} have joined to the course - {}".format(student_email, course_name))
+        time.sleep(1)
+        return self.course_crud_menu()
+
+    def get_courses_without_teacher(self):
+        """
+            method that returns the list of courses that does not have
+            teacher/teacher does not exist/deleted teacher
+            by default, course is leaded by admin
+        """
+        if not self.is_authenticated():
+            return self.authenticate()
+        courses = course.Course.get_courses()
+        if courses is None:
+            print("No courses found. You should add new courses..")
+            return self.course_crud_menu()
+
+        print("The list of courses, that does not leaded by teacher")
+        for crs in courses:
+            if crs.get_teacher() == self.get_login():
+                print(crs.course_info())
+        time.sleep(1)
+        return self.course_crud_menu()
+
+    def teacher_crud_menu(self):
+        """
+            menu for working with Teacher class role
+        """
+        if not self.is_authenticated():
+            return self.authenticate()
+        print("**>You are on Teacher role CRUD<**")
+        print("Type\na - to add new Teacher"
+              "\np - to print all Teachers"
+              "\nd - to delete Teacher"
+              "\nq - to quit Teacher role CRUD\n")
+        print("-------------------------------------")
+        inp = ""
+        while inp != "q":
+            inp = input("Type operation >")
+
+            if inp == "p":
+                Teacher.print_all_teachers()
+            elif inp == "a":
+                Teacher.add_teacher()
+            elif inp == "d":
+                Teacher.delete_teacher()
+            elif inp == "q":
+                return self.main_menu()
+            time.sleep(3)
+            return self.teacher_crud_menu()
+
+    def student_crud_menu(self):
+        """
+            menu for working with Teacher class role
+        """
+        if not self.is_authenticated():
+            return self.authenticate()
+        print("**>You are on Student role CRUD<**")
+        print("Type\n\ta - to add new Student"
+              "\n\tp - to print all Students"
+              "\n\td - to delete Students"
+              "\n\tq - to quit Student role CRUD\n")
+        print("-------------------------------------")
+        inp = ""
+        while inp != "q":
+            inp = input("Type operation >")
+
+            if inp == "p":
+                Student.print_all_students()
+            elif inp == "a":
+                Student.add_student()
+            elif inp == "d":
+                Student.delete_student()
+            elif inp == "q":
+                return self.main_menu()
+            time.sleep(3)
+            return self.student_crud_menu()
+
+    def course_crud_menu(self):
+        """
+          menu for working with Course class
+        """
+        if not self.is_authenticated():
+            return self.authenticate()
+        print("**>You are on Course class CRUD<**")
+        print("Type\n\ta - to add new Course"
+              "\n\tp - to print all Courses"
+              "\n\tf - to print all free Courses"
+              "\n\tu - to get the Courses without Teacher"
+              "\n\tas - to attach student to Course"
+              "\n\tat - to attach teacher to Course"
+              "\n\td - to delete Course"
+              "\n\tq - to quit Course class CRUD\n")
+        print("-------------------------------------")
+        inp = ""
+        while inp != "q":
+            inp = input("Type operation >")
+
+            if inp == "a":
+                course.Course.add()
+            elif inp == "p":
+                course.Course.print_all_crs()
+            elif inp == "f":
+                course.Course.print_all_free_courses()
+            elif inp == "u":
+                self.get_courses_without_teacher()
+            elif inp == "as":
+                self.attach_students()
+            elif inp == "at":
+                self.attach_teachers()
+            elif inp == "d":
+                course.Course.delete()
+            elif inp == "q":
+                return self.main_menu()
+            time.sleep(3)
+            return self.course_crud_menu()
+
+    def main_menu(self):
+        """
+            main driver class for Admin
+        """
+        if not self.is_authenticated():
+            return self.authenticate()
+        print("**>You are on Main menu<**")
+        print("Type\n\tt - to move to Teachers CRUD"
+              "\n\ts - to move to Students CRUD"
+              "\n\tc - to move Courses CRUD"
+              "\n\tq - to quit app\n")
+        inp = ""
+        while inp != "q":
+            inp = input("Type operation >")
+
+            if inp == "t":
+                self.teacher_crud_menu()
+            elif inp == "s":
+                self.student_crud_menu()
+            elif inp == "c":
+                self.course_crud_menu()
+            elif inp == "q":
+                self.logout()
+                return
+        time.sleep(3)
+        return self.main_menu()
+
+
+a = Admin()
+a.main_menu()
