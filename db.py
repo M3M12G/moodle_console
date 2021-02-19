@@ -40,14 +40,6 @@ test_dict["courses"].append({
     "total": 20
 })
 
-data = test.read_db()
-data["student"].append({
-      "id": "login+role2",
-      "name": "name2",
-      "surname": "surname2",
-      "login": "login2",
-      "role": "student"
-})
-test.write_db(data)
+test.write_db(test_dict)
 '''
 #print(test.read_db()["student"])
